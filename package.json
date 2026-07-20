@@ -1,0 +1,31 @@
+{
+  "name": "reconciliation-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "tsx src/db/migrate.ts",
+    "seed": "tsx src/db/seeds/seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "allowScripts": {
+    "express@5.2.1": true,
+    "pg@8.22.0": true,
+    "typescript@7.0.2": true
+  }
+}
