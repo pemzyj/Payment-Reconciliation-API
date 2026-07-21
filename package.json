@@ -26,6 +26,8 @@
   "allowScripts": {
     "express@5.2.1": true,
     "pg@8.22.0": true,
-    "typescript@7.0.2": true
+    "typescript@7.0.2": true,
+    "@types/node@26.1.1": true,
+    "@types/pg@8.20.0": true
   }
 }
