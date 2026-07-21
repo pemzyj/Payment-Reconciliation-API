@@ -1,3 +1,5 @@
+-- All tables are in 3NF but also in BCNF because all determinants are candidate keys (Primary key) and there are no multiple candidate keys
+
 CREATE EXTENSION IF NOT EXISTS pgcrypto;     -- gen_random_uuid()
 CREATE EXTENSION IF NOT EXISTS pg_trgm;      -- trigram similarity for fuzzy name matching
 CREATE EXTENSION IF NOT EXISTS fuzzystrmatch; -- levenshtein()
@@ -32,8 +34,9 @@ CREATE TABLE customers (
   name        TEXT        NOT NULL,
   created_at  TIMESTAMPTZ NOT NULL    DEFAULT now(),
 
-  UNIQUE (merchant_id, id),
-  FOREIGN KEY (merchant_id, customer_id) REFERENCES customers (merchant_id, id)
+  CONSTRAINT uq_customers UNIQUE (merchant_id, id) 
+  -- merchant + id uniquely identifies a customer
+  -- A foreign key can only reference columns that are guaranteed to uniquely identify a row
 );
 
 CREATE INDEX idx_customers_merchant ON customers(merchant_id);
@@ -53,7 +56,7 @@ CREATE TABLE invoices (
   created_at      TIMESTAMPTZ     NOT NULL    DEFAULT now(),
   updated_at      TIMESTAMPTZ     NOT NULL    DEFAULT now(),
 
-  UNIQUE(merchant_id, id) -- invoices are unique to the merchants
+  CONSTRAINT invoicefk FOREIGN KEY (merchant_id, customer_id) REFERENCES customers (merchant_id, id)
 );
 
 CREATE INDEX idx_invoices_merchant_status ON invoices(merchant_id, status);
@@ -69,11 +72,14 @@ CREATE TABLE transactions (
   sender_name        TEXT                     NOT NULL,
   narration          TEXT                     NOT NULL                DEFAULT '',   -- raw, often garbage/partial bank narration
   occurred_at        TIMESTAMPTZ              NOT NULL,
-  matched_invoice_id UUID                     REFERENCES invoices(id) ON DELETE SET NULL,
+  matched_invoice_id UUID,
   match_status       transaction_match_status NOT NULL                DEFAULT 'unmatched',
   created_at         TIMESTAMPTZ              NOT NULL                DEFAULT now(),
 
-  FOREIGN KEY (merchant_id, matched_invoice_id) REFERENCES invoices (merchant_id, id)
+  CONSTRAINT transactionsfk 
+  FOREIGN KEY (merchant_id, matched_invoice_id) 
+  REFERENCES invoices (merchant_id, id)
+  ON DELETE SET NULL
 );
 
 CREATE INDEX idx_transactions_merchant ON transactions(merchant_id);
@@ -87,6 +93,7 @@ CREATE INDEX idx_transactions_narration_trgm ON transactions USING gin (narratio
 
 CREATE TABLE match_attempts (
   id             UUID           PRIMARY KEY             DEFAULT gen_random_uuid(),
+  merchant_id    UUID           NOT NULL                REFERENCES merchants(id)    ON DELETE CASCADE,
   transaction_id UUID           NOT NULL                REFERENCES transactions(id) ON DELETE CASCADE,
   invoice_id     UUID           REFERENCES invoices(id) ON DELETE CASCADE, -- null when match_type = 'none'
   match_type     match_type     NOT NULL,
@@ -95,6 +102,7 @@ CREATE TABLE match_attempts (
   created_at     TIMESTAMPTZ    NOT NULL                DEFAULT now()
 );
 
+CREATE INDEX idx_match_attempts_merchant ON match_attempts(merchant_id);
 CREATE INDEX idx_match_attempts_transaction ON match_attempts(transaction_id);
 CREATE INDEX idx_match_attempts_invoice ON match_attempts(invoice_id);
 
@@ -112,6 +120,4 @@ BEFORE UPDATE ON invoices
 FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 
--- Potential issues
--- merchants name aint unique
--- index on UUID fields which is a random inserts
+

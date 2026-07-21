@@ -1,0 +1,14 @@
+DROP POLICY IF EXISTS merchant_isolation ON match_attempts;
+DROP POLICY IF EXISTS merchant_isolation ON transactions;
+DROP POLICY IF EXISTS merchant_isolation ON invoices;
+DROP POLICY IF EXISTS merchant_isolation ON customers;
+
+ALTER TABLE match_attempts NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE transactions   NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE invoices       NO FORCE ROW LEVEL SECURITY;
+ALTER TABLE customers      NO FORCE ROW LEVEL SECURITY;
+
+ALTER TABLE match_attempts DISABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions   DISABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices       DISABLE ROW LEVEL SECURITY;
+ALTER TABLE customers      DISABLE ROW LEVEL SECURITY;
