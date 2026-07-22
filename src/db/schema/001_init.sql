@@ -40,6 +40,7 @@ CREATE TABLE customers (
 );
 
 CREATE INDEX idx_customers_merchant ON customers(merchant_id);
+-- Finding all customers of one merchant
 -- trigram index so similarity()/% lookups against sender names are fast
 CREATE INDEX idx_customers_name_trgm ON customers USING gin (name gin_trgm_ops);
 
@@ -56,14 +57,15 @@ CREATE TABLE invoices (
   created_at      TIMESTAMPTZ     NOT NULL    DEFAULT now(),
   updated_at      TIMESTAMPTZ     NOT NULL    DEFAULT now(),
 
+  CONSTRAINT uq_invoices UNIQUE(merchant_id, id),
   CONSTRAINT invoicefk FOREIGN KEY (merchant_id, customer_id) REFERENCES customers (merchant_id, id)
 );
 
 CREATE INDEX idx_invoices_merchant_status ON invoices(merchant_id, status);
-CREATE INDEX idx_invoices_reference_code ON invoices(merchant_id, reference_code);
+CREATE INDEX idx_invoices_reference_code ON invoices(merchant_id, reference_code) WHERE status IN ('pending','partial');
 CREATE INDEX idx_invoices_amount ON invoices(merchant_id, amount);
 CREATE INDEX idx_invoices_due_date ON invoices(merchant_id, due_date);
-
+CREATE INDEX idx_invoices_customer_id ON invoices(customer_id); 
 
 CREATE TABLE transactions (
   id                 UUID                     PRIMARY KEY             DEFAULT gen_random_uuid(),
@@ -84,8 +86,8 @@ CREATE TABLE transactions (
 
 CREATE INDEX idx_transactions_merchant ON transactions(merchant_id);
 CREATE INDEX idx_transactions_matched_invoice ON transactions(matched_invoice_id);
-CREATE INDEX idx_transactions_amount ON transactions(amount);
-CREATE INDEX idx_transactions_occurred_at ON transactions(occurred_at);
+CREATE INDEX idx_transactions_merchant_amount ON transactions(merchant_id, amount);
+CREATE INDEX idx_transactions_merchant_occurred_at ON transactions(merchant_id, occurred_at);
 CREATE INDEX idx_transactions_sender_name_trgm ON transactions USING gin (sender_name gin_trgm_ops);
 -- narration search: exact-substring reference lookups happen a lot (step 1 of the engine)
 CREATE INDEX idx_transactions_narration_trgm ON transactions USING gin (narration gin_trgm_ops);

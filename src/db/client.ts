@@ -1,8 +1,10 @@
 import { Pool } from "pg";
-import "dotenv/config";
 
-export const pool = new Pool({
+
+const pool = new Pool({
   connectionString:
-    process.env.DATABASE_URL ??
+    process.env.DATABASE_URI ??
     "postgresql://postgres:postgres@localhost:5432/reconciliation",
 });
+
+export default pool;

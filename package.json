@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --exec tsx app.ts",
+    "start": "tsx app.ts",
     "migrate": "tsx src/db/migrate.ts",
     "seed": "tsx src/db/seeds/seed.ts"
   },
@@ -16,9 +17,11 @@
     "pg": "^8.22.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
     "@types/pg": "^8.20.0",
     "dotenv": "^17.4.2",
+    "nodemon": "^3.1.14",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2"
   },
@@ -28,6 +31,8 @@
     "pg@8.22.0": true,
     "typescript@7.0.2": true,
     "@types/node@26.1.1": true,
-    "@types/pg@8.20.0": true
+    "@types/pg@8.20.0": true,
+    "@types/express@5.0.6": true,
+    "nodemon@3.1.14": true
   }
 }
