@@ -1,4 +1,4 @@
-import { pool } from "../client";
+import pool  from "../src/configs/client.js";
 
 /**
  * Seed data is deliberately built so every branch of the matching engine

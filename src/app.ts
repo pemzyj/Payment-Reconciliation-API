@@ -1,6 +1,6 @@
 import express from "express";
 import "dotenv/config";
-import pool from "./src/db/client.ts";
+import pool from "./configs/client.js";
 
 const app = express();
 

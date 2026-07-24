@@ -51,7 +51,7 @@ CREATE TABLE invoices (
   customer_id     UUID            NOT NULL    REFERENCES customers(id) ON DELETE RESTRICT,
   amount          NUMERIC(14, 2)  NOT NULL    CHECK (amount > 0),
   amount_paid     NUMERIC(14, 2)  NOT NULL    DEFAULT 0 CHECK (amount_paid >= 0),
-  reference_code  TEXT            NOT NULL,
+  reference_code  TEXT            NOT NULL    UNIQUE,
   due_date        DATE            NOT NULL,
   status          invoice_status  NOT NULL    DEFAULT 'pending',
   created_at      TIMESTAMPTZ     NOT NULL    DEFAULT now(),
