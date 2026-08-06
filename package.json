@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "nodemon --exec tsx app.ts",
     "start": "tsx app.ts",
-    "migrate": "tsx src/db/migrate.ts",
-    "seed": "tsx src/db/seeds/seed.ts"
+    "migrate": "tsx migrations/migrate.ts",
+    "seed": "tsx seeds/seed.ts",
+    "match": "tsx src/engine/run.ts"
   },
   "keywords": [],
   "author": "",

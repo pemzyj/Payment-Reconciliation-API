@@ -1,11 +1,12 @@
--- All tables are in 3NF but also in BCNF because all determinants are candidate keys (Primary key) and there are no multiple candidate keys
+-- All tables are in 3NF but also in BCNF because all determinants are candidate keys (Primary key) 
+-- and there are no multiple candidate keys
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;     -- gen_random_uuid()
 CREATE EXTENSION IF NOT EXISTS pg_trgm;      -- trigram similarity for fuzzy name matching
 CREATE EXTENSION IF NOT EXISTS fuzzystrmatch; -- levenshtein()
 
 
-CREATE TYPE invoice_status AS ENUM ('pending', 'partial', 'matched', 'overdue');
+CREATE TYPE invoice_status AS ENUM ('pending', 'partial', 'matched', 'overdue', 'reversed');
 
 CREATE TYPE transaction_match_status AS ENUM (
   'unmatched',        -- not yet processed / no candidate found

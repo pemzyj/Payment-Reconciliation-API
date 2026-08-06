@@ -1,8 +1,4 @@
--- Moves "does this invoice's paid total and status reflect its matched
--- transactions" out of application code and into the database, so a bug in
--- the matching engine can't silently desync invoices.status from reality.
---
--- Side benefit: recalculate_invoice_totals() does `SELECT ... FOR UPDATE` on
+-- Recalculate_invoice_totals() does `SELECT ... FOR UPDATE` on
 -- the invoice row, so two concurrent transactions matching the same invoice
 -- serialize on that row instead of racing each other to an inconsistent total.
 

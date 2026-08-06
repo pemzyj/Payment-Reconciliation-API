@@ -16,13 +16,32 @@ Given a stream of incoming bank transfers (amount, sender name, timestamp, garba
 
 ## Design Decisions & Tradeoffs
 
+- No overpayment is allowed (no credit-balance model)
+
+- Allowed invoice state transitions are:
+- pending -> partial
+- pending -> matched
+- partial -> matched
+- matched -> reversed
+- overdue -> matched
+- reversed -> pending
+- reversed -> partial
+
+- Merchants cannot be hard deleted because accidental DELETE FROM merchants cascades through customers, invoices, transactions, and match_attempts with no way back
+
+- Assumption: the bank feed can send genuine reversals/refunds as negative amounts. Loosen the check from "amount > 0" to "amount <> 0" so those aren't silently rejected on insert. (The matching engine, once built, needs its own logic for how a negative transaction affects amount_paid. The reconciliation trigger from migration 012 already sums transactions.amount directly, so a negative reversal will correctly reduce amount_paid once summed.)
+
 - Why I chose UUIDs over Serial IDs? The major problem with UUIDs is the random insert which could end up splitting the B-tree.
 
-- Answer: Most of the queries won't use UUIDs alone. The queries will use where merchant_id = $1 AND status = 'pending' or AND name % 'John'. This second part of the queries will make lookup fast. Also, based on present requirements of between 10-100 merchants, PostgreSQL can handle this amount of UUIDs perfectly.
+- Solution: Most of the queries won't use UUIDs alone. The queries will use where merchant_id = $1 AND status = 'pending' or AND name % 'John'. This second part of the queries will make lookup fast. Also, based on present requirements of between 10-100 merchants, PostgreSQL can handle this amount of UUIDs perfectly.
 
 - Problem: Merchants could see each others data. Invoices and customers have to be unique to each merchants while the transactions have to be unique to each invoices and merchants.
 
 - Solution: Added Row Level Security to all tables.This ensures that all queries used the WHERE Merchant_id = $1. Added composite unique keys to the customer and invoice tables and composite foreign keys to ensure that merchants can access only it own customers, invoices, and transactions.
+
+- Problem:
+
+- Solution:
 
 ## At 10x Scale
 
